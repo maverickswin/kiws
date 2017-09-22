@@ -1,21 +1,24 @@
-import * as logger       from '@nodeswork/logger';
+import * as logger        from '@nodeswork/logger';
 
-import { Module }        from '../module';
+import { Module }         from '../module';
 import {
   KoaService,
   ModuleService,
-}                        from '../providers';
+}                         from '../providers';
 import {
   BodyParserMiddleware,
   ErrorHandleMiddleware,
-}                        from '../middlewares';
+}                         from '../middlewares';
 import {
   ServiceHandler,
-}                        from '../handlers';
+  ServiceHealthStats,
+  ServiceStatsHandler,
+  SERVICE_STATS_PROVIDER,
+}                         from '../handlers';
 import {
   ContextInput,
   ContextInputProvider,
-}                        from '../inputs';
+}                         from '../inputs';
 
 const LOG = logger.getLogger();
 
@@ -26,6 +29,7 @@ const LOG = logger.getLogger();
   ],
   handlers: [
     ServiceHandler,
+    ServiceStatsHandler,
   ],
   inputs: [
     ContextInputProvider,
@@ -34,6 +38,11 @@ const LOG = logger.getLogger();
     ContextInput,
     ModuleService,
     KoaService,
+    {
+      provide:   SERVICE_STATS_PROVIDER,
+      useClass:  ServiceHealthStats,
+      multi:     true,
+    },
   ],
 })
 export class CoreModule {
