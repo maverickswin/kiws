@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "Koa-based Injectable Web Service",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf dist/ && ./node_modules/.bin/gulp",
     "prepublish": "npm run build",
