@@ -1,6 +1,6 @@
 {
   "name": "@nodeswork/kiws",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Koa-based Injectable Web Service",
   "main": "dist/index.js",
   "scripts": {
