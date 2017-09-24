@@ -16,8 +16,8 @@ function isConstructor(arg: Constructor | ConstructorOverride): arg is Construct
   return typeof arg === 'function';
 }
 
-type Beans      = { [key: string]: Constructor[] };
-type Singletons = { [key: string]: any[] };
+export type Beans      = { [key: string]: Constructor[] };
+export type Singletons = { [key: string]: any[] };
 
 /**
  * Bean provider to hold injection instances and create beans.
@@ -123,7 +123,11 @@ export class BeanProvider {
   }
 
   getRegisteredBeans(): Constructor[] {
-    return _.flatten(Object.values(this.beans));
+    return _.union(_.flatten(Object.values(this.beans)));
+  }
+
+  getRegisteredBeanClazz(): Beans {
+    return this.beans;
   }
 
   clear() {
