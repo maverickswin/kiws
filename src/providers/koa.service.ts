@@ -40,10 +40,15 @@ export class KoaService {
     @Token(HANDLER)    private handlers:            Handler[],
     @Token(INPUT)      private inputProviders:      InputProvider[],
   ) {
-    const middlewares: Middleware[] = _.flatten(
-      _.map(this.middlewareProviders, (provider) => provider.$getMiddlewares())
+    const data: MiddlewareData[] = _.map(
+      this.middlewareProviders, (provider) => {
+        return {
+          provider,
+          middlewares: provider.$getMiddlewares(),
+        };
+      },
     );
-    this.registerMiddlewaresPre(middlewares);
+    this.registerPreMiddlewares(data);
 
     this.registerHandlers();
 
@@ -51,7 +56,7 @@ export class KoaService {
       .use(this.router.routes())
       .use(this.router.allowedMethods())
     ;
-    this.registerMiddlewaresPost(middlewares);
+    this.registerPostMiddlewares(data);
   }
 
   private registerHandlers() {
@@ -87,43 +92,56 @@ export class KoaService {
     }
   }
 
-  private registerMiddlewaresPre(middlewares: Middleware[]) {
-    for (const middleware of middlewares) {
-      if (middleware.target === MIDDLEWARE_TARGET_APP && !middleware.later) {
-        this.app.use(middleware.fn.bind(middleware));
-        LOG.info(
-          'Use App middleware', _.pick(middleware, 'provider', 'name'),
-        );
+  private registerPreMiddlewares(data: MiddlewareData[]) {
+    for (const { provider, middlewares } of data) {
+      for (const middleware of middlewares) {
+        if (middleware.target === MIDDLEWARE_TARGET_APP && !middleware.later) {
+          this.app.use(middleware.fn.bind(provider));
+          LOG.info(
+            'Use App middleware', _.pick(middleware, 'provider', 'name'),
+          );
+        }
       }
     }
 
-    for (const middleware of middlewares) {
-      if (middleware.target === MIDDLEWARE_TARGET_ROUTER && !middleware.later) {
-        this.router.use(middleware.fn.bind(middleware));
-        LOG.info(
-          'Use Router middleware', _.pick(middleware, 'provider', 'name'),
-        );
+    for (const { provider, middlewares } of data) {
+      for (const middleware of middlewares) {
+        if (middleware.target === MIDDLEWARE_TARGET_ROUTER && !middleware.later) {
+          this.router.use(middleware.fn.bind(provider));
+          LOG.info(
+            'Use Router middleware', _.pick(middleware, 'provider', 'name'),
+          );
+        }
       }
     }
   }
 
-  private registerMiddlewaresPost(middlewares: Middleware[]) {
-    for (const middleware of middlewares) {
-      if (middleware.target === MIDDLEWARE_TARGET_ROUTER && middleware.later) {
-        this.router.use(middleware.fn.bind(middleware));
-        LOG.info(
-          'Use Router middleware', _.pick(middleware, 'provider', 'name'),
-        );
+  private registerPostMiddlewares(data: MiddlewareData[]) {
+    for (const { provider, middlewares } of data) {
+      for (const middleware of middlewares) {
+        if (middleware.target === MIDDLEWARE_TARGET_ROUTER && middleware.later) {
+          this.router.use(middleware.fn.bind(provider));
+          LOG.info(
+            'Use Router middleware', _.pick(middleware, 'provider', 'name'),
+          );
+        }
       }
     }
 
-    for (const middleware of middlewares) {
-      if (middleware.target === MIDDLEWARE_TARGET_APP && middleware.later) {
-        this.app.use(middleware.fn.bind(middleware));
-        LOG.info(
-          'Use App middleware', _.pick(middleware, 'provider', 'name'),
-        );
+    for (const { provider, middlewares } of data) {
+      for (const middleware of middlewares) {
+        if (middleware.target === MIDDLEWARE_TARGET_APP && middleware.later) {
+          this.app.use(middleware.fn.bind(provider));
+          LOG.info(
+            'Use App middleware', _.pick(middleware, 'provider', 'name'),
+          );
+        }
       }
     }
   }
+}
+
+interface MiddlewareData {
+  provider:     MiddlewareProvider;
+  middlewares:  Middleware[];
 }
