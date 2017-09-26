@@ -90,7 +90,7 @@ export class KoaService {
   private registerMiddlewaresPre(middlewares: Middleware[]) {
     for (const middleware of middlewares) {
       if (middleware.target === MIDDLEWARE_TARGET_APP && !middleware.later) {
-        this.app.use(middleware.fn);
+        this.app.use(middleware.fn.bind(middleware));
         LOG.info(
           'Use App middleware', _.pick(middleware, 'provider', 'name'),
         );
@@ -99,7 +99,7 @@ export class KoaService {
 
     for (const middleware of middlewares) {
       if (middleware.target === MIDDLEWARE_TARGET_ROUTER && !middleware.later) {
-        this.router.use(middleware.fn);
+        this.router.use(middleware.fn.bind(middleware));
         LOG.info(
           'Use Router middleware', _.pick(middleware, 'provider', 'name'),
         );
@@ -110,7 +110,7 @@ export class KoaService {
   private registerMiddlewaresPost(middlewares: Middleware[]) {
     for (const middleware of middlewares) {
       if (middleware.target === MIDDLEWARE_TARGET_ROUTER && middleware.later) {
-        this.router.use(middleware.fn);
+        this.router.use(middleware.fn.bind(middleware));
         LOG.info(
           'Use Router middleware', _.pick(middleware, 'provider', 'name'),
         );
@@ -119,7 +119,7 @@ export class KoaService {
 
     for (const middleware of middlewares) {
       if (middleware.target === MIDDLEWARE_TARGET_APP && middleware.later) {
-        this.app.use(middleware.fn);
+        this.app.use(middleware.fn.bind(middleware));
         LOG.info(
           'Use App middleware', _.pick(middleware, 'provider', 'name'),
         );
