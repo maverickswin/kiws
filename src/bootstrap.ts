@@ -8,7 +8,7 @@ import { constants }    from './constants';
 /**
  * Bootstrap series modules.
  */
-export function bootstrap(modules: any | any[], options: {
+export function bootstrap(modules?: any | any[], options: {
   noStart?: boolean;
 } = {}) {
   if (options.noStart) {
