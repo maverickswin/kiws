@@ -19,6 +19,9 @@ import {
   ContextInput,
   ContextInputProvider,
 }                         from '../inputs';
+import {
+  constants
+}                         from '../constants';
 
 const LOG = logger.getLogger();
 
@@ -50,7 +53,10 @@ export class CoreModule {
   constructor(
     private koa: KoaService,
   ) {
-    this.koa.app.listen(28900);
-    LOG.info('server is start', { url: 'http://localhost:28900' });
+    const port = parseInt(process.env[constants.env.PORT] || '28900');
+    if (!process.env[constants.env.NO_SERVER]) {
+      this.koa.app.listen(port);
+      LOG.info('server is start', { url: `http://localhost:${port}` });
+    }
   }
 }

@@ -5,4 +5,4 @@ import * as kiws from '../src';
 class ServiceStatsHandlerModule {
 }
 
-kiws.bootstrap(ServiceStatsHandlerModule);
+kiws.bootstrap(ServiceStatsHandlerModule, { noStart: true });

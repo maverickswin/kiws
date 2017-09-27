@@ -1,4 +1,5 @@
 export * from './bootstrap';
+export * from './constants';
 export * from './handler';
 export * from './handlers';
 export * from './injection';
