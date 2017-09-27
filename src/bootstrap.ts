@@ -8,15 +8,15 @@ import { constants }    from './constants';
 /**
  * Bootstrap series modules.
  */
-export function bootstrap(nwModel?: any, options: {
+export function bootstrap(modules: any | any[], options: {
   noStart?: boolean;
 } = {}) {
-
   if (options.noStart) {
     process.env[constants.env.NO_SERVER] = 'true';
   }
 
-  const modules = _.filter([ nwModel, CoreModule ], (x) => x);
+  modules = _.flatten([modules]);
+  modules.push(CoreModule);
 
   for (const m of modules as Module[]) {
     m.$register();
