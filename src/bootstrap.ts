@@ -15,7 +15,7 @@ export function bootstrap(modules: any | any[], options: {
     process.env[constants.env.NO_SERVER] = 'true';
   }
 
-  modules = _.flatten([modules]);
+  modules = _.filter(_.flatten([modules]), _.identity);
   modules.push(CoreModule);
 
   for (const m of modules as Module[]) {
