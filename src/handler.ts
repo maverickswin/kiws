@@ -31,6 +31,7 @@ export function Handler(options: { tags?: string[], meta?: object } = {}) {
 export interface EndpointOptions {
   method?:  string | string[];
   path:     string;
+  meta?:    object;
 }
 
 export interface EndpointMetadata extends EndpointOptions {
