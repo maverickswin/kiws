@@ -16,12 +16,13 @@ export class ErrorHandleMiddleware {
       await next();
     } catch (e) {
       const err = NodesworkError.cast(e);
-      ctx.status = err.meta.responseCode;
+      const responseCode = err.meta.responseCode || 500;
+      ctx.status = responseCode;
       ctx.body = err.toJSON();
 
-      if (err.meta.responseCode >= 500) {
+      if (responseCode >= 500) {
         LOG.error('5xx in request', err.toJSON({ cause: true, stack: true }));
-      } else if (err.meta.responseCode >= 400){
+      } else if (responseCode >= 400){
         LOG.warn('4xx in request', err.toJSON());
       }
     }
