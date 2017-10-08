@@ -8,6 +8,7 @@ import {
 import {
   BodyParserMiddleware,
   ErrorHandleMiddleware,
+  LogRequestMiddleware,
 }                         from '../middlewares';
 import {
   ServiceHandler,
@@ -29,6 +30,7 @@ const LOG = logger.getLogger();
   middlewares: [
     BodyParserMiddleware,
     ErrorHandleMiddleware,
+    LogRequestMiddleware,
   ],
   handlers: [
     ServiceHandler,
