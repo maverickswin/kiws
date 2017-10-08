@@ -233,7 +233,7 @@ export function Token(name: string) {
 export function Injectable(options: InjectableOptions = {}) {
   return <T extends {new(...args:any[]):{}}>(constructor: T) => {
 
-    const injectionMetadata: InjectionMetadata = Reflect.getMetadata(
+    const injectionMetadata: InjectionMetadata = Reflect.getOwnMetadata(
       INJECTION_METADATA_KEY, constructor.prototype,
     ) || {};
     const ct = Reflect.getMetadata('design:paramtypes', constructor);
