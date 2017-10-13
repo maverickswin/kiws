@@ -4,6 +4,7 @@ export * from './handler';
 export * from './handlers';
 export * from './injection';
 export * from './input';
+export * from './inputs';
 export * from './middleware';
 export * from './module';
 export * from './modules';
