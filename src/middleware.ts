@@ -1,10 +1,15 @@
 import 'reflect-metadata';
 
-import * as _                      from 'underscore';
-import * as Koa                    from 'koa';
-import * as Router                 from 'koa-router';
+import * as _              from 'underscore';
+import * as Koa            from 'koa';
+import * as Router         from 'koa-router';
 
-import { Constructor, Injectable } from './injection';
+import {
+  Constructor,
+  Injectable,
+  defineInjectionMetadata,
+  getInjectionMetadata,
+}                          from './injection';
 
 export const MIDDLEWARE                = 'MIDDLEWARE';
 
@@ -12,7 +17,6 @@ export const MIDDLEWARE_TARGET_APP     = 'app';
 export const MIDDLEWARE_TARGET_ROUTER  = 'router';
 
 const MIDDLEWARE_TAGS                  = [ 'middleware', 'provider' ];
-const MIDDLEWARE_METADATA_KEY          = Symbol('kiws:middleware');
 
 /**
  * MiddlewareProvider class decorator will register the middlewares declared in
@@ -21,12 +25,15 @@ const MIDDLEWARE_METADATA_KEY          = Symbol('kiws:middleware');
 export function MiddlewareProvider(
   options: { tags?: string[], meta?: object } = {},
 ) {
-  const injectable = Injectable({
-    inputs:  true,
-    tags:    _.union(MIDDLEWARE_TAGS, options.tags || []),
-    meta:    options.meta,
-  });
   return (constructor: Constructor) => {
+    const injectionMetadata = getInjectionMetadata(constructor);
+    const injectable = Injectable({
+      inputs:  true,
+      tags:    _.union(MIDDLEWARE_TAGS, options.tags || []),
+      meta:    _.extend({}, options.meta, {
+        middlewares: injectionMetadata.meta.middlewares || [],
+      }),
+    });
     injectable(constructor);
     (constructor as any).prototype.$getMiddlewares = $getMiddlewares;
   };
@@ -46,10 +53,11 @@ function middleware(metadata: MiddlewareMetadata) {
   return (target: any, propertyName: string) => {
     metadata.name = propertyName;
     metadata.provider = target.constructor.name;
-    const metadatas: MiddlewareMetadata[] =
-      Reflect.getOwnMetadata(MIDDLEWARE_METADATA_KEY, target) || [];
-    metadatas.push(metadata);
-    Reflect.defineMetadata(MIDDLEWARE_METADATA_KEY, metadatas, target);
+
+    const injectionMetadata = getInjectionMetadata(target.constructor);
+    _.defaults(injectionMetadata.meta, { middlewares: [] });
+    injectionMetadata.meta.middlewares.push(metadata);
+    defineInjectionMetadata(target.constructor, injectionMetadata);
   };
 }
 
@@ -69,11 +77,11 @@ export interface MiddlewareProvider {
 }
 
 function $getMiddlewares(): Middleware[] {
-  const metadatas: MiddlewareMetadata[] = Reflect.getOwnMetadata(
-    MIDDLEWARE_METADATA_KEY, this.constructor.prototype
-  ) || [];
-  const middlewares = _.map(metadatas, (metadata) => {
-    return _.extend(metadata, { fn: this[metadata.name] });
-  });
-  return middlewares;
+  const injectionMetadata = getInjectionMetadata(this.constructor);
+  return _.map(
+    injectionMetadata.meta.middlewares,
+    (metadata: MiddlewareMetadata) => {
+      return _.extend(metadata, { fn: this[metadata.name] });
+    },
+  );
 }

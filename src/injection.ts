@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import * as _ from 'underscore';
 
-const INJECTION_METADATA_KEY  = Symbol('kiws:injection');
+export const INJECTION_METADATA_KEY  = Symbol('kiws:injection');
 const INJECTION_TOKEN_KEY     = Symbol('kiws:token');
 
 export type Constructor = { new(...args: any[]): {} };
@@ -151,7 +151,7 @@ export interface InputMetadata extends InjectMetadata {
 export interface InjectionMetadata {
   name?:     string;
   tags?:     string[];
-  meta?:     object;
+  meta?:     any;
   posts?:    string[];
   injects?:  InjectMetadata[];
   inputs?:   InputMetadata[];
@@ -271,5 +271,22 @@ export function Injectable(options: InjectableOptions = {}) {
 export function getInjectionMetadata(
   constructor: Constructor
 ): InjectionMetadata {
-  return Reflect.getMetadata(INJECTION_METADATA_KEY, constructor.prototype);
+  const metadata = Reflect.getMetadata(
+    INJECTION_METADATA_KEY, constructor.prototype,
+  ) || {
+    tags:     [],
+    meta:     {},
+    posts:    [],
+    injects:  [],
+    inputs:   [],
+  };
+  return metadata;
+}
+
+export function defineInjectionMetadata(
+  constructor: Constructor, metadata: InjectionMetadata,
+): void {
+  Reflect.defineMetadata(
+    INJECTION_METADATA_KEY, metadata, constructor.prototype,
+  );
 }
